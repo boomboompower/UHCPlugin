@@ -1,0 +1,8 @@
+name: UHCPlugin
+version: ${project.version}
+main: me.boomboompower.uhcplugin.UHCPlugin
+prefix: UHC
+authors: [boomboompower]
+commands:
+  uhc:
+    description: Do things
