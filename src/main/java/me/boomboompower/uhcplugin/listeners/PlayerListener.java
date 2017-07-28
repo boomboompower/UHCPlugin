@@ -18,6 +18,7 @@
 package me.boomboompower.uhcplugin.listeners;
 
 import me.boomboompower.uhcplugin.UHCPlugin;
+import me.boomboompower.uhcplugin.configuration.StatisticsConfiguration;
 import me.boomboompower.uhcplugin.events.GameStartEvent;
 import me.boomboompower.uhcplugin.items.ItemUtils;
 import me.boomboompower.uhcplugin.utils.EnumChatFormatting;
@@ -35,10 +36,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -55,7 +53,6 @@ public class PlayerListener implements Listener {
 
     private HashMap<Player, Integer> kills = new HashMap<>();
 
-    public int currentPlayerCount = 0;
     public int maxPlayerCount = 24;
     public int minPlayerCount = 12;
 
@@ -65,23 +62,26 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        if (UHCPlugin.isStarted()) {
-            SpectatorListener.getInstance().setSpectator(event.getPlayer(), true);
+        Player player = event.getPlayer();
+        if (UHCPlugin.hasStarted()) {
+            SpectatorListener.getInstance().setSpectator(player, true);
             GlobalUtils.sendMessage(event.getPlayer(), EnumChatFormatting.RED + "Game has already started, you are a spectator!", true);
+
+            event.setJoinMessage("");
         } else {
-            Permissions.setPlayer(event.getPlayer());
-            if (currentPlayerCount >= maxPlayerCount && !Permissions.hasPermission("uhc.join")) {
-                event.getPlayer().kickPlayer(EnumChatFormatting.RED + "Server is full, try another game!");
+            Permissions.setPlayer(player);
+            if (getCurrentPlayerCount() >= maxPlayerCount && !Permissions.hasPermission("uhc.join")) {
+                player.kickPlayer(EnumChatFormatting.RED + "Server is full, try another game!");
                 return;
             }
 
-            currentPlayerCount++;
+            event.setJoinMessage(EnumChatFormatting.translateAlternateColorCodes('&', String.format("&e%s has joined (&b%s&e/&b%s&e)", player.getName(), getCurrentPlayerCount(), maxPlayerCount)));
 
-            event.getPlayer().getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(14);
+            player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(14);
 
-            SpectatorListener.getInstance().setSpectator(event.getPlayer(), SpectatorListener.isSpectator(event.getPlayer()));
+            SpectatorListener.getInstance().setSpectator(player, SpectatorListener.isSpectator(player));
             for (String playerName : SpectatorListener.getInstance().getDeathList()) {
-                event.getPlayer().hidePlayer(Bukkit.getPlayer(playerName));
+                player.hidePlayer(Bukkit.getPlayer(playerName));
             }
 
             ScoreboardManager manager = Bukkit.getScoreboardManager();
@@ -91,17 +91,44 @@ public class PlayerListener implements Listener {
             objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
             objective.setDisplayName("/ 20");
 
+            new StatisticsConfiguration(player).load();
+
             for (Player online : Bukkit.getOnlinePlayers()) {
                 online.setScoreboard(board);
                 online.setHealth(online.getHealth());
             }
 
-            if (currentPlayerCount >= minPlayerCount && !UHCPlugin.isStarted()) {
+            if (kills.containsKey(player)) {
+                updateScoreboard(player, false);
+            }
+
+            if (getCurrentPlayerCount() >= minPlayerCount && !UHCPlugin.hasStarted() && UHCPlugin.getInstance().currentGamestate != UHCPlugin.State.STARTING) {
 
                 // Call our event to start the game
                 GameStartEvent gameStartEvent = new GameStartEvent();
                 Bukkit.getPluginManager().callEvent(gameStartEvent);
             }
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        if (SpectatorListener.isSpectator(event.getPlayer())) {
+            event.setQuitMessage("");
+        } else {
+            event.setQuitMessage(EnumChatFormatting.translateAlternateColorCodes('&', String.format("&e%s has quit!", event.getPlayer().getName())));
+
+            if (getCurrentPlayerCount() > minPlayerCount && UHCPlugin.getInstance().currentGamestate == UHCPlugin.State.STARTING) {
+                Bukkit.getScheduler().cancelTasks(UHCPlugin.getInstance());
+                GlobalUtils.sendToAll(EnumChatFormatting.RED + "Start cancelled, not enough players!", false);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onChat(PlayerChatEvent event) {
+        if (!SpectatorListener.isSpectator(event.getPlayer())) {
+            event.setFormat(EnumChatFormatting.GRAY + "%s: %s");
         }
     }
 
@@ -188,7 +215,7 @@ public class PlayerListener implements Listener {
         if (event.getItem() != null && event.getItem().getType() == Material.SKULL_ITEM && event.getItem().getData().getData() == 3) {
             event.setCancelled(true);
             event.getPlayer().getInventory().remove(event.getItem());
-            event.getPlayer().addPotionEffect(PotionEffectType.REGENERATION.createEffect(20 * 5, 2), true);
+            event.getPlayer().addPotionEffect(PotionEffectType.REGENERATION.createEffect(5000, 2), true);
             GlobalUtils.sendMessage(event.getPlayer(), EnumChatFormatting.GREEN + "You ate a player head and gained 5 seconds of regeneration III", false);
         }
     }
@@ -207,6 +234,20 @@ public class PlayerListener implements Listener {
         } else {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
+    }
+
+    private int getCurrentPlayerCount() {
+        int count = 0;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!SpectatorListener.isSpectator(player)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public HashMap<Player, Integer> getKills() {
+        return kills;
     }
 
     public static PlayerListener getInstance() {

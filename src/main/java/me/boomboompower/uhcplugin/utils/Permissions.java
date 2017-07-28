@@ -151,9 +151,47 @@ public class Permissions {
             for (String s : perms) {
                 bufferedWriter.write(s + System.lineSeparator());
             }
+            bufferedWriter.close();
+            writer.close();
+
             UHCPlugin.log("Added permission \"%s\" to %s", permission, player.getName());
         } catch (Throwable throwable) {
             UHCPlugin.log("Failed to add permission \"%s\" to player %s", permission, player.getName());
+        }
+    }
+
+    public static void removePermission(String permission) {
+        if (!usingFile || permission == null || removeSpecialCharacters(permission).isEmpty()) {
+            return;
+        }
+
+        permission = removeSpecialCharacters(permission);
+
+        try {
+            createDefaultDirectory();
+
+            File file = new File(directory, player.getUniqueId().toString());
+
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            ArrayList<String> perms = new ArrayList<>();
+            FileWriter writer = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+
+            perms.addAll(getPermissionsFromFile());
+            perms.remove(permission);
+
+            for (String s : perms) {
+                bufferedWriter.write(s + System.lineSeparator());
+            }
+            bufferedWriter.close();
+            writer.close();
+
+            UHCPlugin.log("Removed permission \"%s\" from %s", permission, player.getName());
+        } catch (Throwable throwable) {
+            UHCPlugin.log("Failed to remove permission \"%s\" from player %s", permission, player.getName());
         }
     }
 

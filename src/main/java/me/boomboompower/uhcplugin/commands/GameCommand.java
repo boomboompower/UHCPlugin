@@ -21,7 +21,10 @@ import me.boomboompower.uhcplugin.UHCPlugin;
 import me.boomboompower.uhcplugin.events.GameStartEvent;
 import me.boomboompower.uhcplugin.listeners.PlayerListener;
 import me.boomboompower.uhcplugin.utils.EnumChatFormatting;
+import me.boomboompower.uhcplugin.utils.WallUtils;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -44,7 +47,7 @@ public class GameCommand implements CommandBase {
      */
     @Override
     public String getCommandUsage() {
-        return EnumChatFormatting.RED + "Usage: /" + getCommand() + "<forcestart, min, max>";
+        return EnumChatFormatting.RED + "Usage: /" + getCommand() + " <forcestart, min, max, wall>";
     }
 
     /**
@@ -71,11 +74,15 @@ public class GameCommand implements CommandBase {
             if (args.length == 0) {
                 sendMessage(sender, getCommandUsage());
             } else {
-                if (UHCPlugin.isStarted()) {
+                if (UHCPlugin.hasStarted()) {
                     sendMessage(sender, EnumChatFormatting.RED + "Game is already started!");
                     return true;
                 }
                 switch (args[0]) {
+                    case "info":
+                        sendMessage(sender, "Minimum count: %s", PlayerListener.getInstance().minPlayerCount);
+                        sendMessage(sender, "Maximum count: %s", PlayerListener.getInstance().maxPlayerCount);
+                        break;
                     case "min":
                     case "minplayers":
                         if (args.length == 1) {
@@ -107,7 +114,7 @@ public class GameCommand implements CommandBase {
                             try {
                                 int newMax = Integer.valueOf(args[1]);
                                 if (newMax < PlayerListener.getInstance().minPlayerCount) {
-                                    int min = PlayerListener.getInstance().maxPlayerCount;
+                                    int min = PlayerListener.getInstance().minPlayerCount;
                                     PlayerListener.getInstance().minPlayerCount = newMax;
                                     PlayerListener.getInstance().maxPlayerCount = min;
 
@@ -126,6 +133,21 @@ public class GameCommand implements CommandBase {
                     case "forcestart":
                         GameStartEvent event = new GameStartEvent();
                         Bukkit.getPluginManager().callEvent(event);
+                        break;
+                    case "wall":
+                    case "walls":
+                    case "border":
+                        if (args.length == 1) {
+                            sendMessage(sender, EnumChatFormatting.RED + "Please specify the border radius");
+                        } else {
+                            try {
+                                for (int i = 0; i < 20; i++) {
+                                    WallUtils.addBorder(Bukkit.getWorlds().get(0).getName(), Material.BEDROCK, Integer.valueOf(args[1]));
+                                }
+                            } catch (NumberFormatException e) {
+                                sendMessage(sender, EnumChatFormatting.RED + "Not a valid number!");
+                            }
+                        }
                         break;
                     default:
                         sendMessage(sender, getCommandUsage());

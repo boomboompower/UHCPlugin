@@ -18,7 +18,6 @@
 package me.boomboompower.uhcplugin.commands;
 
 import me.boomboompower.uhcplugin.listeners.SpectatorListener;
-import me.boomboompower.uhcplugin.listeners.UHCListener;
 import me.boomboompower.uhcplugin.UHCPlugin;
 import me.boomboompower.uhcplugin.utils.EnumChatFormatting;
 import me.boomboompower.uhcplugin.utils.GlobalUtils;

@@ -5,4 +5,8 @@ prefix: UHC
 authors: [boomboompower]
 commands:
   uhc:
-    description: Do things
+    description: things
+  game:
+    description: lol
+  permission:
+    description: perm test

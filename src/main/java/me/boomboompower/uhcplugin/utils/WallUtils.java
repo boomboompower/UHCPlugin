@@ -19,6 +19,7 @@ package me.boomboompower.uhcplugin.utils;
 
 import me.boomboompower.uhcplugin.UHCPlugin;
 import me.boomboompower.uhcplugin.events.GenerationCompleteEvent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

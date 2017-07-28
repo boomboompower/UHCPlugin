@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 public class GlobalUtils {
 
     public static void sendMessage(CommandSender sender, String message, boolean usePrefix, Object... replacements) {
-        sender.sendMessage((usePrefix ? UHCPlugin.PREFIX  : "") + String.format(message, replacements));
+        sender.sendMessage((usePrefix ? UHCPlugin.PREFIX  : EnumChatFormatting.GRAY + "") + EnumChatFormatting.translateAlternateColorCodes('&', String.format(message, replacements)));
     }
 
     public static void sendToAll(String message, boolean usePrefix, Object... replacements) {

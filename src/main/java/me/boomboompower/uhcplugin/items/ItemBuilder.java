@@ -17,6 +17,8 @@
 
 package me.boomboompower.uhcplugin.items;
 
+import me.boomboompower.uhcplugin.utils.EnumChatFormatting;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -37,11 +39,11 @@ public class ItemBuilder {
     }
 
     public void setName(String name) {
-        stackIn.getItemMeta().setDisplayName(name);
+        stackIn.getItemMeta().setDisplayName(EnumChatFormatting.translateAlternateColorCodes('&', name));
     }
 
     public String getName() {
-        return stackIn.getItemMeta().hasDisplayName() ? stackIn.getItemMeta().getDisplayName() : stackIn.getItemMeta().getLocalizedName();
+        return stackIn.getItemMeta().hasDisplayName() ? stackIn.getItemMeta().getDisplayName() : stackIn.getItemMeta().hasLocalizedName() ? stackIn.getItemMeta().getLocalizedName() : stackIn.getType().name();
     }
 
     public void setLore(String... lines) {

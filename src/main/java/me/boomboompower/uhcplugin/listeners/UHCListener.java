@@ -17,10 +17,15 @@
 
 package me.boomboompower.uhcplugin.listeners;
 
+import me.boomboompower.uhcplugin.UHCPlugin;
 import me.boomboompower.uhcplugin.events.GameStartEvent;
+import me.boomboompower.uhcplugin.events.GenerationCompleteEvent;
+import me.boomboompower.uhcplugin.utils.GlobalUtils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class UHCListener implements Listener {
 
@@ -33,8 +38,27 @@ public class UHCListener implements Listener {
     @EventHandler
     public void onGameStart(GameStartEvent event) {
         if (!event.isCancelled()) {
-            // TODO this
+            UHCPlugin.getInstance().currentGamestate = UHCPlugin.State.STARTING;
+
+            final int[] seconds = {10};
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (seconds[0] == 0) {
+                        Bukkit.getScheduler().cancelTask(getTaskId());
+                        UHCPlugin.getInstance().currentGamestate = UHCPlugin.State.STARTED;
+                        return;
+                    }
+                    GlobalUtils.sendToAll("&bGame starting in &9%s&b second(s)!", false, seconds[0]);
+                    seconds[0]--;
+                }
+            }.runTaskTimer(UHCPlugin.getInstance(), 0L, 20L);
         }
+    }
+
+    @EventHandler
+    public void onGenComplete(GenerationCompleteEvent event) {
+        UHCPlugin.log("Generated walls for %s", event.getWorldName());
     }
 
     public static UHCListener instance() {

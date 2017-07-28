@@ -18,6 +18,7 @@
 package me.boomboompower.uhcplugin.listeners;
 
 import me.boomboompower.uhcplugin.items.ItemUtils;
+import me.boomboompower.uhcplugin.utils.EnumChatFormatting;
 import me.boomboompower.uhcplugin.utils.PlayerUtils;
 
 import org.bukkit.Bukkit;
@@ -26,10 +27,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -48,6 +51,33 @@ public class SpectatorListener implements Listener {
     private ArrayList<String> deathList = new ArrayList<>();
 
     @EventHandler
+    public void onChat(PlayerChatEvent event) {
+        if (SpectatorListener.isSpectator(event.getPlayer())) {
+            event.setFormat(EnumChatFormatting.GRAY + "[SPECTATOR] %s: %s");
+
+            event.getRecipients().clear();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (SpectatorListener.isSpectator(player)) {
+                    event.getRecipients().add(player);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (isSpectator(player.getName())) {
+            event.setCancelled(true);
+            if (event.getItem() != null) {
+                if (event.getItem().equals(ItemUtils.Items.getPlayerTracker())) {
+                    player.openInventory(ItemUtils.Inventories.getSpectatorInventory());
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onItemPickup(PlayerPickupItemEvent event) {
         if (deathList.contains(event.getPlayer().getName())) {
             event.setCancelled(true);
@@ -55,17 +85,16 @@ public class SpectatorListener implements Listener {
     }
 
     @EventHandler
-    public void onInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        if (deathList.contains(player.getName())) {
-            if (event.getItem() != null) {
-                if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    if (event.getItem().equals(ItemUtils.Items.getPlayerTracker())) {
-                        player.openInventory(ItemUtils.Inventories.getSpectatorInventory());
-                        event.setCancelled(true);
-                    }
-                }
-            }
+    public void onDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player && isSpectator(event.getDamager().getName())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onTarget(EntityTargetEvent event) {
+        if (event.getTarget() instanceof Player && isSpectator(event.getTarget().getName())) {
+            event.setCancelled(true);
         }
     }
 
@@ -130,7 +159,7 @@ public class SpectatorListener implements Listener {
     }
 
     public static boolean isSpectator(String playerName) {
-        return getInstance().deathList.contains(playerName);
+        return instance.deathList.contains(playerName);
     }
 
     public static SpectatorListener getInstance() {

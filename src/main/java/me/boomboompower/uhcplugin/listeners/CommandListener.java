@@ -18,25 +18,25 @@
 package me.boomboompower.uhcplugin.listeners;
 
 import me.boomboompower.uhcplugin.UHCPlugin;
-import me.boomboompower.uhcplugin.events.GenerationCompleteEvent;
+import me.boomboompower.uhcplugin.utils.EnumChatFormatting;
+import me.boomboompower.uhcplugin.utils.GlobalUtils;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-public class WallListener implements Listener {
-
-    public WallListener() {
-    }
+public class CommandListener implements Listener {
 
     @EventHandler
-    public void onBorderGenerationCompleteEvent(GenerationCompleteEvent event) {
-        UHCPlugin.log("Generated walls for %s", event.getWorldName());
-    }
+    public void onCommand(PlayerCommandPreprocessEvent event) {
+        String command = event.getMessage().contains(" ") ? event.getMessage().split(" ")[0] : event.getMessage();
 
-    @EventHandler
-    public void onChunkUnload(ChunkUnloadEvent event) {
-        event.setCancelled(true);
+        if (command.equalsIgnoreCase("op") || command.equalsIgnoreCase("stop")) {
+            GlobalUtils.sendMessage(event.getPlayer(), EnumChatFormatting.RED + "No no no!", false);
+            UHCPlugin.log("%s attempted to use command %s", event.getPlayer(), command);
+            event.setCancelled(true);
+            return;
+        }
+        event.setMessage(event.getMessage().replace("<me>", event.getPlayer().getName()));
     }
 }
-

@@ -19,11 +19,14 @@ package me.boomboompower.uhcplugin.listeners;
 
 import me.boomboompower.uhcplugin.UHCPlugin;
 import me.boomboompower.uhcplugin.items.ItemUtils;
+
 import org.bukkit.Material;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Random;
@@ -52,6 +55,9 @@ public class WorldListener implements Listener {
                     case LEAVES:
                     case LEAVES_2:
                         event.setDropItems(false);
+                        if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.SHEARS) {
+                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.LEAVES, 1, event.getBlock().getData()));
+                        }
                         if (new Random().nextInt(100) <= 3) {
                             event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.SAPLING, 1));
                         }
@@ -75,7 +81,14 @@ public class WorldListener implements Listener {
     }
 
     @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
     public void onExplode(EntityExplodeEvent event) {
-        event.blockList().clear();
+        if (event.getEntity() instanceof TNTPrimed) {
+            event.blockList().clear();
+        }
     }
 }
