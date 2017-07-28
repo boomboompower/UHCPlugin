@@ -15,9 +15,10 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.boomboompower.uhcplugin.utils;
+package me.boomboompower.uhcplugin.items;
 
-import me.boomboompower.uhcplugin.UHCEvents;
+import me.boomboompower.uhcplugin.listeners.SpectatorListener;
+
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -28,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -47,17 +49,18 @@ public class ItemUtils {
         }
     }
 
-    public static void setHead(Location block, String name) {
-        BlockState state = block.getWorld().getBlockAt(block).getState();
-
+    public static void setHead(Location loc, String name) {
+        loc.getBlock().setType(Material.SKULL);
+        loc.getBlock().setData((byte) 3);
+        BlockState state = loc.getBlock().getState();
         if (state instanceof Skull) {
-            Skull skull = (Skull)state;
+            Skull skull = (Skull) state;
 
-            skull.setRotation(BlockFace.SOUTH_SOUTH_EAST);
+            skull.setRotation(BlockFace.EAST);
             skull.setSkullType(SkullType.PLAYER);
             skull.setOwner(name);
         }
-        state.update();
+        state.update(true, false);
     }
 
     public static ItemStack getHeadItem(String username) {
@@ -78,6 +81,12 @@ public class ItemUtils {
         return items[0];
     }
 
+    public static List<ItemStack> toList(ItemStack... items) {
+        List<ItemStack> stacks = new ArrayList<>();
+        stacks.addAll(Arrays.asList(items));
+        return stacks;
+    }
+
     public static class Items {
 
         public static ItemStack getPlayerTracker() {
@@ -92,7 +101,7 @@ public class ItemUtils {
             ItemStack stack = new ItemStack(Material.GOLDEN_APPLE, 1);
             ItemMeta meta = stack.getItemMeta();
             meta.setDisplayName(ChatColor.GOLD + "Golden head");
-            meta.setLore(Arrays.asList("It is said that the blood of your", "enemies strengthens the soul..."));
+            meta.setLore(Arrays.asList("It is said that consuming the blood of", "your enemies strengthens the soul..."));
             stack.setItemMeta(meta);
             return stack;
         }
@@ -103,9 +112,13 @@ public class ItemUtils {
         public static Inventory getSpectatorInventory() {
             Inventory inv = Bukkit.createInventory(null, 27, "Player Spectator");
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (!UHCEvents.instance().getDeathList().contains(player.getName())) {
+                if (!SpectatorListener.isSpectator(player)) {
                     inv.addItem(getHeadItem(player.getName()));
                 }
+            }
+
+            if (inv.getContents().length == 0) {
+                inv.setItem(13, new ItemStack(Material.WOOL));
             }
             return inv;
         }

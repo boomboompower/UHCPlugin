@@ -1,14 +1,15 @@
 package me.boomboompower.uhcplugin;
 
 import me.boomboompower.uhcplugin.commands.CommandBase;
+import me.boomboompower.uhcplugin.commands.GameCommand;
 import me.boomboompower.uhcplugin.commands.UHCCommand;
+import me.boomboompower.uhcplugin.listeners.*;
+import me.boomboompower.uhcplugin.items.ItemUtils;
 
-import me.boomboompower.uhcplugin.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.material.MaterialData;
@@ -18,24 +19,30 @@ public final class UHCPlugin extends JavaPlugin {
 
     public static String PREFIX = ChatColor.GOLD + "UHC" + ChatColor.AQUA + " > " + ChatColor.GRAY;
 
-    public static int flintDropChance = 9;
-    public static int appleDropChance = 100;
-    public static int timeBombDelay = 30;
+    public State currentGamestate = State.WAITING;
 
-    public static boolean showProjectilePlayerHealth = false;
-    public static boolean useFlintLootRates = false;
-    public static boolean useAppleLootRates = false;
-    public static boolean backbacksEnabled = false;
-    public static boolean useAppleFamine = false;
-    public static boolean usePearlDamage = true;
-    public static boolean useTimeBomb = false;
-    public static boolean useCutclean = false;
-    public static boolean dropHeads = true;
+    public int flintDropChance = 9;
+    public int appleDropChance = 100;
+    public int timeBombDelay = 30;
+
+    public boolean showProjectilePlayerHealth = false;
+    public boolean useFlintLootRates = false;
+    public boolean useAppleLootRates = false;
+    public boolean backbacksEnabled = false;
+    public boolean useAppleFamine = false;
+    public boolean usePearlDamage = true;
+    public boolean useTimeBomb = false;
+    public boolean useCutclean = false;
+    public boolean dropHeads = true;
+
+    private static UHCPlugin instance;
 
     @Override
     public void onEnable() {
-        register(new UHCEvents(this));
-        registerCommands(new UHCCommand());
+        instance = this;
+
+        register(new UHCListener(), new WorldListener(), new PlayerListener(), new SpectatorListener(), new EntityListener(), new WallListener());
+        registerCommands(new UHCCommand(), new GameCommand());
 
         Bukkit.addRecipe(getGoldenHeadRecipe());
     }
@@ -50,8 +57,10 @@ public final class UHCPlugin extends JavaPlugin {
         }
     }
 
-    private void registerCommands(CommandBase executor) {
-        Bukkit.getPluginCommand(executor.getCommand()).setExecutor(executor);
+    private void registerCommands(CommandBase... executors) {
+        for (CommandBase executor : executors) {
+            Bukkit.getPluginCommand(executor.getCommand()).setExecutor(executor);
+        }
     }
 
     private Recipe getGoldenHeadRecipe() {
@@ -60,5 +69,19 @@ public final class UHCPlugin extends JavaPlugin {
         recipe.setIngredient('G', Material.GOLD_INGOT);
         recipe.setIngredient('S', new MaterialData(Material.SKULL_ITEM, (byte) 3));
         return recipe;
+    }
+
+    public static boolean isStarted() {
+        return getInstance().currentGamestate == State.STARTED;
+    }
+
+    public enum State { WAITING, STARTED, FINISHED }
+
+    public static void log(String message, Object... formatting) {
+        getInstance().getLogger().info(String.format(message, formatting));
+    }
+
+    public static UHCPlugin getInstance() {
+        return instance;
     }
 }

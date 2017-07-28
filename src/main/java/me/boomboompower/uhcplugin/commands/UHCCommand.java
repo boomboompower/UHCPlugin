@@ -17,13 +17,14 @@
 
 package me.boomboompower.uhcplugin.commands;
 
-import me.boomboompower.uhcplugin.UHCEvents;
+import me.boomboompower.uhcplugin.listeners.SpectatorListener;
+import me.boomboompower.uhcplugin.listeners.UHCListener;
 import me.boomboompower.uhcplugin.UHCPlugin;
+import me.boomboompower.uhcplugin.utils.EnumChatFormatting;
 import me.boomboompower.uhcplugin.utils.GlobalUtils;
+import me.boomboompower.uhcplugin.items.ItemUtils;
 
-import me.boomboompower.uhcplugin.utils.ItemUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,11 +38,11 @@ import org.bukkit.entity.Player;
  */
 public class UHCCommand implements CommandBase {
 
-    private final String NOW = ChatColor.GREEN + "now" + ChatColor.GRAY;
-    private final String NOLONGER = ChatColor.RED + "no longer" + ChatColor.GRAY;
+    private final String NOW = EnumChatFormatting.GREEN + "now" + EnumChatFormatting.GRAY;
+    private final String NOLONGER = EnumChatFormatting.RED + "no longer" + EnumChatFormatting.GRAY;
 
-    private final String ENABLED = ChatColor.GREEN + "enabled" + ChatColor.GRAY;
-    private final String DISABLED = ChatColor.RED + "disabled" + ChatColor.GRAY;
+    private final String ENABLED = EnumChatFormatting.GREEN + "enabled" + EnumChatFormatting.GRAY;
+    private final String DISABLED = EnumChatFormatting.RED + "disabled" + EnumChatFormatting.GRAY;
 
     /**
      * Sets the command as the following
@@ -60,7 +61,7 @@ public class UHCCommand implements CommandBase {
      */
     @Override
     public String getCommandUsage() {
-        return ChatColor.RED + "/" + getCommand() + " <info, pearls, rates, cutclean, timebomb, projectile>";
+        return EnumChatFormatting.RED + "Usage: /" + getCommand() + " <info, pearls, rates, cutclean, timebomb, projectile>";
     }
 
     /**
@@ -90,46 +91,46 @@ public class UHCCommand implements CommandBase {
                 switch (args[0]) {
                     case "info":
                     case "status":
-                        sendMessage(sender, "Cutclean is %s", (UHCPlugin.useCutclean) ? ENABLED : DISABLED);
-                        sendMessage(sender, "Health on rod hit is %s", (UHCPlugin.showProjectilePlayerHealth) ? ENABLED : DISABLED);
-                        sendMessage(sender, "Time bomb is %s (Delay:%ss)", (UHCPlugin.useTimeBomb) ? ENABLED : DISABLED, UHCPlugin.timeBombDelay);
+                        sendMessage(sender, "Cutclean is %s", (UHCPlugin.getInstance().useCutclean) ? ENABLED : DISABLED);
+                        sendMessage(sender, "Health on rod hit is %s", (UHCPlugin.getInstance().showProjectilePlayerHealth) ? ENABLED : DISABLED);
+                        sendMessage(sender, "Time bomb is %s (Delay:%ss)", (UHCPlugin.getInstance().useTimeBomb) ? ENABLED : DISABLED, UHCPlugin.getInstance().timeBombDelay);
                         break;
                     case "projectile":
                     case "projectiles":
-                        sendMessage(sender, "Showing health on rod hit is %s enabled!", (UHCPlugin.showProjectilePlayerHealth = !UHCPlugin.showProjectilePlayerHealth) ? NOW : NOLONGER);
+                        sendMessage(sender, "Showing health on rod hit is %s enabled!", (UHCPlugin.getInstance().showProjectilePlayerHealth = !UHCPlugin.getInstance().showProjectilePlayerHealth) ? NOW : NOLONGER);
                         break;
                     case "timebomb":
-                        sendMessage(sender, "Time bomb is %s enabled!", (UHCPlugin.useTimeBomb = !UHCPlugin.useTimeBomb) ? NOW : NOLONGER);
+                        sendMessage(sender, "Time bomb is %s enabled!", (UHCPlugin.getInstance().useTimeBomb = !UHCPlugin.getInstance().useTimeBomb) ? NOW : NOLONGER);
                         break;
                     case "cutclean":
                     case "usecutclean":
-                        sendMessage(sender, "Cutclean is %s enabled!", (UHCPlugin.useCutclean = !UHCPlugin.useCutclean) ? NOW : NOLONGER);
+                        sendMessage(sender, "Cutclean is %s enabled!", (UHCPlugin.getInstance().useCutclean = !UHCPlugin.getInstance().useCutclean) ? NOW : NOLONGER);
                         break;
                     case "pearl":
                     case "pearls":
                     case "enderpearl":
                     case "enderpearls":
-                        sendMessage(sender, "Enderpearl damage is %s enabled!", (UHCPlugin.usePearlDamage = !UHCPlugin.usePearlDamage) ? NOW : NOLONGER);
+                        sendMessage(sender, "Enderpearl damage is %s enabled!", (UHCPlugin.getInstance().usePearlDamage = !UHCPlugin.getInstance().usePearlDamage) ? NOW : NOLONGER);
                         break;
                     case "head":
                     case "heads":
                     case "skull":
                     case "skulls":
-                        sendMessage(sender, "Head dropping is %s enabled!", (UHCPlugin.dropHeads = !UHCPlugin.dropHeads) ? NOW : NOLONGER);
+                        sendMessage(sender, "Head dropping is %s enabled!", (UHCPlugin.getInstance().dropHeads = !UHCPlugin.getInstance().dropHeads) ? NOW : NOLONGER);
                         break;
                     case "spec":
                     case "spectator":
                         if (args.length == 1) {
-                            sendMessage(sender, ChatColor.RED + "Usage: /uhc spectator <open, switch>");
+                            sendMessage(sender, EnumChatFormatting.RED + "Usage: /uhc spectator <open, switch>");
                         } else {
                             switch (args[1]) {
                                 case "open":
                                 case "inventory":
                                     if (sender instanceof Player) {
                                         ((Player) sender).openInventory(ItemUtils.Inventories.getSpectatorInventory());
-                                        sendMessage(sender, ChatColor.GREEN + "Spectator inventory opened");
+                                        sendMessage(sender, EnumChatFormatting.GREEN + "Spectator inventory opened");
                                     } else {
-                                        sendMessage(sender, ChatColor.RED + "Only a player can use this subcommand!");
+                                        sendMessage(sender, EnumChatFormatting.RED + "Only a player can use this subcommand!");
                                     }
                                     break;
                                 case "switch":
@@ -138,7 +139,7 @@ public class UHCCommand implements CommandBase {
                                         sendMessage(sender, "Please specify whom you wish to toggle!");
                                     } else {
                                         Player player = Bukkit.getPlayer(args[2]);
-                                        if (!UHCEvents.instance().getDeathList().contains(player.getName())) {
+                                        if (!SpectatorListener.isSpectator(player)) {
                                             player.setHealth(0);
                                             sendMessage(sender, "%s is now a spectator!", args[2]);
                                         } else {
@@ -147,7 +148,7 @@ public class UHCCommand implements CommandBase {
                                     }
                                     break;
                                 default:
-                                    sendMessage(sender, ChatColor.RED + "Usage: /uhc spectator <open, switch>");
+                                    sendMessage(sender, EnumChatFormatting.RED + "Usage: /uhc spectator <open, switch>");
                                     break;
                             }
                         }
@@ -157,34 +158,37 @@ public class UHCCommand implements CommandBase {
                     case "apple":
                     case "apples":
                         if (args.length == 1) {
-                            sendMessage(sender, ChatColor.RED + "Usage: /uhc rates <flint|apples> <amount>");
+                            sendMessage(sender, EnumChatFormatting.RED + "Usage: /uhc rates <flint|apples|famine> <amount>");
                         } else {
                             switch (args[1]) {
                                 case "apple":
                                 case "apples":
                                     if (args.length == 2) {
-                                        sendMessage(sender, "Apple drop rate forcing has been %s!", (UHCPlugin.useAppleLootRates = !UHCPlugin.useAppleLootRates) ? ENABLED : DISABLED);
+                                        sendMessage(sender, "Apple drop rate forcing has been %s!", (UHCPlugin.getInstance().useAppleLootRates = !UHCPlugin.getInstance().useAppleLootRates) ? ENABLED : DISABLED);
                                     } else {
                                         try {
-                                            sendMessage(sender, "Apple drop rate is now %s!", (UHCPlugin.appleDropChance = Integer.valueOf(args[2])));
+                                            sendMessage(sender, "Apple drop rate is now %s!", (UHCPlugin.getInstance().appleDropChance = Integer.valueOf(args[2])));
                                         } catch (NumberFormatException ex) {
-                                            sendMessage(sender, ChatColor.RED + "Only use numbers please!");
+                                            sendMessage(sender, EnumChatFormatting.RED + "Only use numbers please!");
                                         }
                                     }
                                     break;
                                 case "flint":
                                     if (args.length == 2) {
-                                        sendMessage(sender, "Flint drop rate forcing has been %s!", (UHCPlugin.useFlintLootRates = !UHCPlugin.useFlintLootRates) ? ENABLED : DISABLED);
+                                        sendMessage(sender, "Flint drop rate forcing has been %s!", (UHCPlugin.getInstance().useFlintLootRates = !UHCPlugin.getInstance().useFlintLootRates) ? ENABLED : DISABLED);
                                     } else {
                                         try {
-                                            sendMessage(sender, "Flint drop rate is now %s!", (UHCPlugin.flintDropChance = Integer.valueOf(args[2])));
+                                            sendMessage(sender, "Flint drop rate is now %s!", (UHCPlugin.getInstance().flintDropChance = Integer.valueOf(args[2])));
                                         } catch (NumberFormatException ex) {
-                                            sendMessage(sender, ChatColor.RED + "Only use numbers please!");
+                                            sendMessage(sender, EnumChatFormatting.RED + "Only use numbers please!");
                                         }
                                     }
                                     break;
+                                case "famine":
+                                    sendMessage(sender, "Apple famine is now %s!", (UHCPlugin.getInstance().useAppleFamine = !UHCPlugin.getInstance().useAppleFamine) ? ENABLED : DISABLED);
+                                    break;
                                 default:
-                                    sendMessage(sender, ChatColor.RED + "Usage: /uhc rates <flint|apples> <amount>");
+                                    sendMessage(sender, EnumChatFormatting.RED + "Usage: /uhc rates <flint|apples> <amount>");
                                     break;
                             }
                         }
@@ -221,9 +225,9 @@ public class UHCCommand implements CommandBase {
                     case "announce":
                     case "broadcast":
                         if (args.length == 1) {
-                            sendMessage(sender, ChatColor.RED + "Arguments cannot be empty!");
+                            sendMessage(sender, EnumChatFormatting.RED + "Arguments cannot be empty!");
                         } else {
-                            GlobalUtils.sendToAll(ChatColor.RED + ChatColor.translateAlternateColorCodes('&', argsToString(args, 1)), true);
+                            GlobalUtils.sendToAll(EnumChatFormatting.RED + EnumChatFormatting.translateAlternateColorCodes('&', argsToString(args, 1)), true);
                         }
                         break;
                     default:

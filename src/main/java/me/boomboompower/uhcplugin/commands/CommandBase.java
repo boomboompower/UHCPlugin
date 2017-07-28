@@ -19,10 +19,12 @@ package me.boomboompower.uhcplugin.commands;
 
 import me.boomboompower.uhcplugin.utils.GlobalUtils;
 
+import me.boomboompower.uhcplugin.utils.Permissions;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 /**
  * Inspired by Forge's ICommand class
@@ -63,7 +65,12 @@ public interface CommandBase extends CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args);
 
     public default boolean canCommandSenderUseCommand(CommandSender sender) {
-        return sender.hasPermission(getRequiredPermission());
+        if (sender instanceof Player) {
+            Permissions.setPlayer((Player) sender);
+            return Permissions.hasPermission(getRequiredPermission());
+        } else {
+            return sender.hasPermission(getRequiredPermission());
+        }
     }
 
     /**
