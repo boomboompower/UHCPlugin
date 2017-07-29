@@ -132,12 +132,10 @@ public class SpectatorListener implements Listener {
         if (spectator) {
             player.setGameMode(GameMode.ADVENTURE);
             player.setAllowFlight(true);
-            player.setInvulnerable(true);
             player.getInventory().setItem(0, ItemUtils.Items.getPlayerTracker());
         } else {
             player.setGameMode(GameMode.SURVIVAL);
             player.setAllowFlight(false);
-            player.setInvulnerable(false);
         }
         for (Player player1 : Bukkit.getOnlinePlayers()) {
             if (spectator) {

@@ -26,9 +26,15 @@ public class GenerationCompleteEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
 
     private World world;
+    private int radius;
 
     public GenerationCompleteEvent(World world) {
+        this(world, 0);
+    }
+
+    public GenerationCompleteEvent(World world, int radius) {
         this.world = world;
+        this.radius = radius;
     }
 
     public World getWorld() {
@@ -37,6 +43,10 @@ public class GenerationCompleteEvent extends Event {
 
     public String getWorldName() {
         return this.world.getName();
+    }
+
+    public int getRadius() {
+        return this.radius;
     }
 
     @Override

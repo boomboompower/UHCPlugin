@@ -59,6 +59,10 @@ public class UHCListener implements Listener {
     @EventHandler
     public void onGenComplete(GenerationCompleteEvent event) {
         UHCPlugin.log("Generated walls for %s", event.getWorldName());
+
+        event.getWorld().getWorldBorder().setCenter(0, 0);
+        event.getWorld().getWorldBorder().setSize(event.getRadius() * 2);
+
     }
 
     public static UHCListener instance() {

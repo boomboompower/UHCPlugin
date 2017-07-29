@@ -43,7 +43,7 @@ public class ItemBuilder {
     }
 
     public String getName() {
-        return stackIn.getItemMeta().hasDisplayName() ? stackIn.getItemMeta().getDisplayName() : stackIn.getItemMeta().hasLocalizedName() ? stackIn.getItemMeta().getLocalizedName() : stackIn.getType().name();
+        return stackIn.getItemMeta().hasDisplayName() ? stackIn.getItemMeta().getDisplayName() : stackIn.getType().name();
     }
 
     public void setLore(String... lines) {

@@ -115,7 +115,7 @@ public class WallUtils {
                 }
 
                 if (counter >= radius) {
-                    GenerationCompleteEvent event = new GenerationCompleteEvent(Bukkit.getWorld(worldName));
+                    GenerationCompleteEvent event = new GenerationCompleteEvent(Bukkit.getWorld(worldName), radius);
                     Bukkit.getPluginManager().callEvent(event);
 
                     this.cancel();

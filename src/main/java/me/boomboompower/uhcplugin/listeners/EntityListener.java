@@ -18,13 +18,20 @@
 package me.boomboompower.uhcplugin.listeners;
 
 import me.boomboompower.uhcplugin.UHCPlugin;
+
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class EntityListener implements Listener {
+
+    @EventHandler
+    public void onEntity(EntitySpawnEvent event) {
+
+    }
 
     @EventHandler
     public void onDeath(EntityDeathEvent event) {

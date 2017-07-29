@@ -28,7 +28,6 @@ import me.boomboompower.uhcplugin.utils.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -76,8 +75,6 @@ public class PlayerListener implements Listener {
             }
 
             event.setJoinMessage(EnumChatFormatting.translateAlternateColorCodes('&', String.format("&e%s has joined (&b%s&e/&b%s&e)", player.getName(), getCurrentPlayerCount(), maxPlayerCount)));
-
-            player.getAttribute(Attribute.GENERIC_ATTACK_SPEED).setBaseValue(14);
 
             SpectatorListener.getInstance().setSpectator(player, SpectatorListener.isSpectator(player));
             for (String playerName : SpectatorListener.getInstance().getDeathList()) {
@@ -187,6 +184,8 @@ public class PlayerListener implements Listener {
                 kills.put(killer, 1);
             }
             updateScoreboard(killer, false);
+
+            new StatisticsConfiguration(killer).save();
         }
         event.getDrops().remove(ItemUtils.Items.getPlayerTracker());
     }

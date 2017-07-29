@@ -36,43 +36,43 @@ public class WorldListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (UHCPlugin.getInstance().useCutclean) {
-            if (event.isDropItems()) {
+            if (!event.getBlock().getDrops().isEmpty()) {
                 switch (event.getBlock().getType()) {
                     case IRON_ORE:
-                        event.setDropItems(false);
-                        event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.IRON_INGOT, ItemUtils.getDropCount(Material.IRON_ORE)));
+                        event.getBlock().getDrops().clear();
+                        event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0, .2, 0), new ItemStack(Material.IRON_INGOT, ItemUtils.getDropCount(Material.IRON_ORE)));
                         break;
                     case GOLD_ORE:
-                        event.setDropItems(false);
-                        event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.GOLD_INGOT, ItemUtils.getDropCount(Material.GOLD_ORE)));
+                        event.getBlock().getDrops().clear();
+                        event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0, .2, 0), new ItemStack(Material.GOLD_INGOT, ItemUtils.getDropCount(Material.GOLD_ORE)));
                         break;
                 }
             }
         }
         if (UHCPlugin.getInstance().useAppleLootRates || UHCPlugin.getInstance().useFlintLootRates) {
-            if (event.isDropItems()) {
+            if (!event.getBlock().getDrops().isEmpty()) {
                 switch (event.getBlock().getType()) {
                     case LEAVES:
                     case LEAVES_2:
-                        event.setDropItems(false);
-                        if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.SHEARS) {
-                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.LEAVES, 1, event.getBlock().getData()));
+                        event.getBlock().getDrops().clear();
+                        if (event.getPlayer().getItemInHand().getType() == Material.SHEARS) {
+                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0, .2, 0), new ItemStack(Material.LEAVES, 1, event.getBlock().getData()));
                         }
                         if (new Random().nextInt(100) <= 3) {
-                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.SAPLING, 1));
+                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0, .2, 0), new ItemStack(Material.SAPLING, 1));
                         }
                         if (!UHCPlugin.getInstance().useAppleFamine) {
                             if (new Random().nextInt(UHCPlugin.getInstance().appleDropChance) == 0) {
-                                event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.APPLE));
+                                event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0, .2, 0), new ItemStack(Material.APPLE));
                             }
                         }
                         break;
                     case GRAVEL:
-                        event.setDropItems(false);
+                        event.getBlock().getDrops().clear();
                         if (new Random().nextInt(UHCPlugin.getInstance().flintDropChance) == 0) {
-                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.FLINT));
+                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0, .2, 0), new ItemStack(Material.FLINT));
                         } else {
-                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(Material.GRAVEL));
+                            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation().add(0, .2, 0), new ItemStack(Material.GRAVEL));
                         }
                         break;
                 }
